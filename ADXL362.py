@@ -130,6 +130,36 @@ class ADXL362:
         temp = spi_read_two(0x14)
         return temp
 
+    def read_xyz(self):
+        ''' Read x, y, and z data in burst mode. A burst read is required to
+            guarantee all measurements correspond to the same sample time.
+            Returns:
+                - Tuple with x, y, z, and temperature data
+        '''
+        # Open communication
+        gpio.output(self.slave_select, gpio.LOW)
+
+        # Send read instruction
+        self.spi.xfer(0x0B)
+
+        # Start at x data register
+        self.spi.xfer(0x0E)
+
+        # Read each vector in order
+        x = self.spi.xfer(0x00)
+        x = x + (self.spi.transfer(0x00) << 8)
+        y = self.spi.xfer(0x00)
+        y = y + (self.spi.transfer(0x00) << 8)
+        z = self.spi.xfer(0x00)
+        z = z + (self.spi.transfer(0x00) << 8)
+        temp = self.spi.xfer(0x00)
+        temp = temp + (self.spi.transfer(0x00) << 8)
+
+        # Close communication
+        gpio.output(self.slave_select, gpio.LOW)
+
+        return (x, y, z, temp)
+        
     def spi_read_two(self, address):
         ''' Read two sequential registers
             Arguments: 
@@ -185,6 +215,4 @@ class ADXL362:
         # Close slave select
         gpio.output(self.slave_select, gpio.HIGH)
         return value
-
-
 
