@@ -46,15 +46,9 @@ class ADXL362:
         # Set select line low to enable communication 
         gpio.output(self.slave_pin, gpio.LOW)
         
-        # Send instruction (write)
-        self.spi.xfer([0x0A])
-
-        # Send address
-        self.spi.xfer([address])
+        # Send instruction (write: 0x0A) , the address, and desired value
+        self.spi.xfer([0x0A, address, value])
         
-        # send value
-        self.spi.xfer([value])
-
         # Set select line high to terminate connection
         gpio.output(self.slave_pin, gpio.HIGH)
 
@@ -70,16 +64,14 @@ class ADXL362:
         # Set select line low to enable communication 
         gpio.output(self.slave_pin, gpio.LOW)
         
-        # Send instruction (write)
-        self.spi.xfer([0x0B])
-
-        # Send address
-        self.spi.xfer([address])
+        # Send instruction (read: 0x0B) and desired address to read, 
+        # followed by query (0x00)
+        response = self.spi.xfer([0x0B, address, 0x00])
         
-        # Transfer 0x00 to read response
-        response = self.spi.xfer([0x00])
+        # We only care about the response to the query, so get last element
+        response = response[-1]
 
-        # Set select line high to terminate connection
+       # Set select line high to terminate connection
         gpio.output(self.slave_pin, gpio.HIGH)
     
         return response
