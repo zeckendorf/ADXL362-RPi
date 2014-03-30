@@ -21,17 +21,17 @@ class ADXL362:
 
         # configure gpio interface
         gpio.setmode(gpio.BOARD)
-        gpio.setup(self.slave_pin, gpio.out)
+        gpio.setup(self.slave_pin, gpio.OUT)
 
         # init spi for communication
-        self.spi = spi.SpiDev()
+        self.spi = spidev.SpiDev()
 
         # Set clock phase and polarity to default
-        self.spi.mode(0b00) 
-        time.sleep(.5)
+        self.spi.mode = 0b00 
+        #time.sleep(.5)
 
-        self.spi_write_reg(0x1F, Ox52)
-        time.sleep(.01)
+        self.spi_write_reg(0x1F, 0x52)
+        #time.sleep(.01)
 
         print 'Soft reset'
     
@@ -46,13 +46,13 @@ class ADXL362:
         gpio.output(self.slave_pin, gpio.LOW)
         
         # Send instruction (write)
-        self.spi.xfer(0x0A)
+        self.spi.xfer([0x0A])
 
         # Send address
-        self.spi.xfer(address)
+        self.spi.xfer([address])
         
         # send value
-        self.spi.xfer(value)
+        self.spi.xfer([value])
 
         # Set select line high to terminate connection
         gpio.output(self.slave_pin, gpio.HIGH)
@@ -70,13 +70,13 @@ class ADXL362:
         gpio.output(self.slave_pin, gpio.LOW)
         
         # Send instruction (write)
-        self.spi.xfer(0x0B)
+        self.spi.xfer([0x0B])
 
         # Send address
-        self.spi.xfer(address)
+        self.spi.xfer([address])
         
         # Transfer 0x00 to read response
-        response = self.spi.xfer(0x00)
+        response = self.spi.xfer([0x00])
 
         # Set select line high to terminate connection
         gpio.output(self.slave_pin, gpio.HIGH)
@@ -140,20 +140,20 @@ class ADXL362:
         gpio.output(self.slave_pin, gpio.LOW)
 
         # Send read instruction
-        self.spi.xfer(0x0B)
+        self.spi.xfer([0x0B])
 
         # Start at x data register
-        self.spi.xfer(0x0E)
+        self.spi.xfer([0x0E])
 
         # Read each vector in order
-        x = self.spi.xfer(0x00)
-        x = x + (self.spi.transfer(0x00) << 8)
-        y = self.spi.xfer(0x00)
-        y = y + (self.spi.transfer(0x00) << 8)
-        z = self.spi.xfer(0x00)
-        z = z + (self.spi.transfer(0x00) << 8)
-        temp = self.spi.xfer(0x00)
-        temp = temp + (self.spi.transfer(0x00) << 8)
+        x = self.spi.xfer([0x00])
+        x = x + (self.spi.xfer([0x00]) << 8)
+        y = self.spi.xfer([0x00])
+        y = y + (self.spi.xfer([0x00]) << 8)
+        z = self.spi.xfer([0x00])
+        z = z + (self.spi.xfer([0x00]) << 8)
+        temp = self.spi.xfer([0x00])
+        temp = temp + (self.spi.xfer([0x00]) << 8)
 
         # Close communication
         gpio.output(self.slave_pin, gpio.LOW)
@@ -172,16 +172,16 @@ class ADXL362:
         gpio.output(self.slave_pin, gpio.LOW)
         
         # Send read instruction
-        self.spi.xfer(0x0B)
+        self.spi.xfer([0x0B])
         
         # Send address to be read from
-        self.spi.xfer(address)
+        self.spi.xfer([address])
         
         # Read first register 
-        value = self.spi.xfer(0x00)
+        value = self.spi.xfer([0x00])
         
         # Read second register into bit-shifted first value
-        value = value + (self.spi.xfer(0x00) << 8)
+        value = value + (self.spi.xfer([0x00]) << 8)
         
         # Close slave select
         gpio.output(self.slave_pin, gpio.HIGH)
@@ -201,10 +201,10 @@ class ADXL362:
         gpio.output(self.slave_pin, gpio.LOW)
         
         # Send write instruction
-        self.spi.xfer(0x0A)
+        self.spi.xfer([0x0A])
         
         # Send address to be written to
-        self.spi.xfer(address)
+        self.spi.xfer([address])
         
         # Write to low register 
         self.spi.xfer(low_byte)
