@@ -25,13 +25,14 @@ class ADXL362:
 
         # init spi for communication
         self.spi = spidev.SpiDev()
+        self.spi.open(0,0)
 
         # Set clock phase and polarity to default
         self.spi.mode = 0b00 
-        #time.sleep(.5)
-
+        time.sleep(.5)
+      
         self.spi_write_reg(0x1F, 0x52)
-        #time.sleep(.01)
+        time.sleep(.01)
 
         print 'Soft reset'
     
