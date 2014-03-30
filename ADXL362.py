@@ -14,7 +14,7 @@ import RPi.GPIO as gpio
 
 class ADXL362:
 
-    def init(self):
+    def __init__(self):
 
         # establish slave pin for enable
         self.slave_pin = 14
