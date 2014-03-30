@@ -30,7 +30,7 @@ class ADXL362:
         self.spi.mode(0b00) 
         time.sleep(.5)
 
-        spi_write_reg(0x1F, Ox52)
+        self.spi_write_reg(0x1F, Ox52)
         time.sleep(.01)
 
         print 'Soft reset'
@@ -88,13 +88,13 @@ class ADXL362:
         '''
         
         # Read in current value in power control register
-        pc_reg = spi_read_reg(0x2D)
+        pc_reg = self.spi_read_reg(0x2D)
         
         # Mask measurement mode onto power control buffer
         pc_reg_new = pc_reg | 0x02
 
         # Write new power control buffer to register
-        spi_write_reg(0x2D, pc_reg_new)
+        self.spi_write_reg(0x2D, pc_reg_new)
 
         time.sleep(.01)
 
@@ -103,7 +103,7 @@ class ADXL362:
             Returns:
                 - Value of ug in x direction
         '''
-        x = spi_read_two(0x0E)
+        x = self.spi_read_two(0x0E)
         return x
 
     def read_y(self):
@@ -111,7 +111,7 @@ class ADXL362:
             Returns:
                 - Value of ug in the y direction
         '''
-        y = spi_read_two(0x10)
+        y = self.spi_read_two(0x10)
         return y
 
     def read_z(self):
@@ -119,7 +119,7 @@ class ADXL362:
             Returns:
                 - Value of ug in the z direction
         '''
-        z = spi_read_two(0x12)
+        z = self.spi_read_two(0x12)
         return z
 
     def read_temp(self):
@@ -127,7 +127,7 @@ class ADXL362:
             Returns:
                 - Internal device temperature
         '''
-        temp = spi_read_two(0x14)
+        temp = self.spi_read_two(0x14)
         return temp
 
     def read_xyz(self):
