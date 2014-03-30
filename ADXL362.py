@@ -17,7 +17,7 @@ class ADXL362:
     def __init__(self):
 
         # establish slave pin for enable
-        self.slave_pin = 14
+        self.slave_pin = 8
 
         # configure gpio interface
         gpio.setmode(gpio.BOARD)
