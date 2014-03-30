@@ -1,0 +1,7 @@
+
+# Ignore compiled python files
+*.pyc
+
+# Ignore os generated files
+.DS_Store
+
