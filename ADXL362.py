@@ -146,14 +146,14 @@ class ADXL362:
         self.spi.xfer([0x0E])
 
         # Read each vector in order
-        x = self.spi.xfer([0x00])
-        x = x + (self.spi.xfer([0x00]) << 8)
-        y = self.spi.xfer([0x00])
-        y = y + (self.spi.xfer([0x00]) << 8)
-        z = self.spi.xfer([0x00])
-        z = z + (self.spi.xfer([0x00]) << 8)
-        temp = self.spi.xfer([0x00])
-        temp = temp + (self.spi.xfer([0x00]) << 8)
+        x = self.spi.xfer([0x00])[0]
+        x = x + (self.spi.xfer([0x00])[0] << 8)
+        y = self.spi.xfer([0x00])[0]
+        y = y + (self.spi.xfer([0x00])[0] << 8)
+        z = self.spi.xfer([0x00])[0]
+        z = z + (self.spi.xfer([0x00])[0] << 8)
+        temp = self.spi.xfer([0x00])[0]
+        temp = temp + (self.spi.xfer([0x00])[0] << 8)
 
         # Close communication
         gpio.output(self.slave_pin, gpio.LOW)
