@@ -43,7 +43,7 @@ class ADXL362:
         '''
 
         # Set select line low to enable communication 
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
         
         # Send instruction (write)
         self.spi.xfer(0x0A)
@@ -55,7 +55,7 @@ class ADXL362:
         self.spi.xfer(value)
 
         # Set select line high to terminate connection
-        gpio.output(self.slave_select, gpio.HIGH)
+        gpio.output(self.slave_pin, gpio.HIGH)
 
         
     def spi_read_reg(self, address):
@@ -67,7 +67,7 @@ class ADXL362:
         '''
         
         # Set select line low to enable communication 
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
         
         # Send instruction (write)
         self.spi.xfer(0x0B)
@@ -79,7 +79,7 @@ class ADXL362:
         response = self.spi.xfer(0x00)
 
         # Set select line high to terminate connection
-        gpio.output(self.slave_select, gpio.HIGH)
+        gpio.output(self.slave_pin, gpio.HIGH)
     
         return response
 
@@ -137,7 +137,7 @@ class ADXL362:
                 - Tuple with x, y, z, and temperature data
         '''
         # Open communication
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
 
         # Send read instruction
         self.spi.xfer(0x0B)
@@ -156,7 +156,7 @@ class ADXL362:
         temp = temp + (self.spi.transfer(0x00) << 8)
 
         # Close communication
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
 
         return (x, y, z, temp)
         
@@ -169,7 +169,7 @@ class ADXL362:
         '''
         
         # Set slave select to LOW for communication 
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
         
         # Send read instruction
         self.spi.xfer(0x0B)
@@ -184,7 +184,7 @@ class ADXL362:
         value = value + (self.spi.xfer(0x00) << 8)
         
         # Close slave select
-        gpio.output(self.slave_select, gpio.HIGH)
+        gpio.output(self.slave_pin, gpio.HIGH)
         return value
 
     def spi_write_two(self, address, value):
@@ -198,7 +198,7 @@ class ADXL362:
         low_byte = value & 0xFF
          
         # Set slave select to LOW for communication 
-        gpio.output(self.slave_select, gpio.LOW)
+        gpio.output(self.slave_pin, gpio.LOW)
         
         # Send write instruction
         self.spi.xfer(0x0A)
@@ -213,6 +213,6 @@ class ADXL362:
         self.spi.xfer(high_byte)
         
         # Close slave select
-        gpio.output(self.slave_select, gpio.HIGH)
+        gpio.output(self.slave_pin, gpio.HIGH)
         return value
 
