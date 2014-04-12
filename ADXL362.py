@@ -16,13 +16,6 @@ class ADXL362:
 
     def __init__(self):
 
-        # establish slave pin for enable
-        self.slave_pin = 8
-
-        # configure gpio interface
-        gpio.setmode(gpio.BOARD)
-        gpio.setup(self.slave_pin, gpio.OUT)
-
         # init spi for communication
         self.spi = spidev.SpiDev()
         self.spi.open(0,0)
@@ -42,16 +35,8 @@ class ADXL362:
                 - address: Hexidecimal value of register address
                 -   value: Desired hexidecimal byte to write
         '''
-
-        # Set select line low to enable communication 
-        gpio.output(self.slave_pin, gpio.LOW)
-        
-        # Send instruction (write: 0x0A) , the address, and desired value
-        self.spi.xfer([0x0A, address, value])
-        
-        # Set select line high to terminate connection
-        gpio.output(self.slave_pin, gpio.HIGH)
-
+        # Send instruction (write), address, and value
+        self.spi.xfer2([0x0A, address, value])
         
     def spi_read_reg(self, address):
         ''' Read contents of register at specified address
@@ -60,21 +45,10 @@ class ADXL362:
             Returns:
                 - value at address
         '''
-        
-        # Set select line low to enable communication 
-        gpio.output(self.slave_pin, gpio.LOW)
-        
-        # Send instruction (read: 0x0B) and desired address to read, 
-        # followed by query (0x00)
-        response = self.spi.xfer([0x0B, address, 0x00])
-        
-        # We only care about the response to the query, so get last element
-        response = response[-1]
 
-       # Set select line high to terminate connection
-        gpio.output(self.slave_pin, gpio.HIGH)
-    
-        return response
+        # Send instruction (write)
+        response = self.spi.xfer2([0x0B, address, 0x00])
+        return response[-1]
 
     def begin_measure(self):
         ''' Turn on measurement mode, required after reset
@@ -129,28 +103,12 @@ class ADXL362:
             Returns:
                 - Tuple with x, y, z, and temperature data
         '''
-        # Open communication
-        gpio.output(self.slave_pin, gpio.LOW)
 
-        # Send read instruction
-        self.spi.xfer([0x0B])
-
-        # Start at x data register
-        self.spi.xfer([0x0E])
-
-        # Read each vector in order
-        x = self.spi.xfer([0x00])[0]
-        x = x + (self.spi.xfer([0x00])[0] << 8)
-        y = self.spi.xfer([0x00])[0]
-        y = y + (self.spi.xfer([0x00])[0] << 8)
-        z = self.spi.xfer([0x00])[0]
-        z = z + (self.spi.xfer([0x00])[0] << 8)
-        temp = self.spi.xfer([0x00])[0]
-        temp = temp + (self.spi.xfer([0x00])[0] << 8)
-
-        # Close communication
-        gpio.output(self.slave_pin, gpio.LOW)
-
+        x = self.read_x()
+        y = self.read_y()
+        z = self.read_z()
+        temp = self.read_temp()
+        
         return (x, y, z, temp)
         
     def spi_read_two(self, address):
@@ -160,26 +118,21 @@ class ADXL362:
             Returns: 
                 - Value contained within said two registers
         '''
-        
-        # Set slave select to LOW for communication 
-        gpio.output(self.slave_pin, gpio.LOW)
-        
+       
         # Send read instruction
-        self.spi.xfer([0x0B])
+        value = self.spi.xfer2([0x0B, address, 0x00, 0x00])
+      
+        # Isolate low and high bytes from response
+        val_l = value[2]
+        val_h = value[3] << 8
         
-        # Send address to be read from
-        self.spi.xfer([address])
-        
-        # Read first register 
-        value = self.spi.xfer([0x00])
-        
-        # Read second register into bit-shifted first value
-        value = value + (self.spi.xfer([0x00]) << 8)
-        
-        # Close slave select
-        gpio.output(self.slave_pin, gpio.HIGH)
-        return value
+        # Append low byte and high byte together
+        value = (val_l + val_h) 
 
+        # Turn format of response into hexidecimal for parsing  
+        return hex(value)
+        return self.twos_comp(int("{0:#0{1}x}".format(value,6), 16), 16)
+       
     def spi_write_two(self, address, value):
         ''' Write to two sequential registers
             Arguments: 
@@ -189,23 +142,22 @@ class ADXL362:
         # Split value into high and low bytes for writing
         high_byte = value >> 8
         low_byte = value & 0xFF
-         
-        # Set slave select to LOW for communication 
-        gpio.output(self.slave_pin, gpio.LOW)
-        
+       
         # Send write instruction
-        self.spi.xfer([0x0A])
-        
-        # Send address to be written to
-        self.spi.xfer([address])
-        
-        # Write to low register 
-        self.spi.xfer(low_byte)
-
-        # Write to high register 
-        self.spi.xfer(high_byte)
-        
-        # Close slave select
-        gpio.output(self.slave_pin, gpio.HIGH)
+        self.spi.xfer2([0x0A, address, low_byte, high_byte])
+       
         return value
+    
+    def check_all_regs(self):
+        instructions = [0x0B, 0x20]
+        registers = [0x00] * 15
+        instructions.extend(registers)
+        values = self.spi.xfer2(instructions)
+        
+        return values[2:]
+
+    def twos_comp(self,val, bits):
+        if( (val&(1<<(bits-1))) != 0 ):
+             val = val - (1<<bits)
+        return val
 
