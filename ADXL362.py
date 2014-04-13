@@ -130,7 +130,6 @@ class ADXL362:
         value = (val_l + val_h) 
 
         # Turn format of response into hexidecimal for parsing  
-        return hex(value)
         return self.twos_comp(int("{0:#0{1}x}".format(value,6), 16), 16)
        
     def spi_write_two(self, address, value):
@@ -157,6 +156,8 @@ class ADXL362:
         return values[2:]
 
     def twos_comp(self,val, bits):
+       ''' Returns two's complement of value given a number of bits
+       '''
         if( (val&(1<<(bits-1))) != 0 ):
              val = val - (1<<bits)
         return val
