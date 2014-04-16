@@ -1,4 +1,3 @@
-
 # ADXL362 RPi Library
 This library provides boilerplate for interfacing with raw data from ADXL362 3-axis accelerometer. 
 
@@ -8,7 +7,7 @@ This library provides boilerplate for interfacing with raw data from ADXL362 3-a
 * ~~RPi.GPIO~~
 
 #### Usage: 
-```
+``` python
 $: import ADXL362 as accel
 $: a = accel.ADXL362()
 $: a.begin_measure()
