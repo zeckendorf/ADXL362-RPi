@@ -156,9 +156,9 @@ class ADXL362:
         return values[2:]
 
     def twos_comp(self,val, bits):
-       ''' Returns two's complement of value given a number of bits
-       '''
-        if( (val&(1<<(bits-1))) != 0 ):
-             val = val - (1<<bits)
+        """ Returns two's complement of value given a number of bits
+        """
+        if val&(1<<(bits-1)) != 0:
+            val = val - (1<<bits)
         return val
 
