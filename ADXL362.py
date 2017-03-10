@@ -27,7 +27,7 @@ class ADXL362:
         self.spi_write_reg(0x1F, 0x52)
         time.sleep(.01)
 
-        print 'Soft reset'
+        print('Soft reset')
     
     def spi_write_reg(self, address, value):
         ''' Write value to address
