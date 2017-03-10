@@ -10,7 +10,6 @@
 # spidev is the Raspberry Pi spi communication library
 import spidev
 import time
-import RPi.GPIO as gpio
 
 class ADXL362:
 
