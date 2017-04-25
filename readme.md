@@ -4,7 +4,6 @@ This library provides boilerplate for interfacing with raw data from ADXL362 3-a
 #### Requirements:
 * spidev
 * python2.7 or python3.x
-* ~~RPi.GPIO~~
 
 #### Usage: 
 ``` python
