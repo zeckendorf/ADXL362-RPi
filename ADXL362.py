@@ -13,11 +13,18 @@ import time
 
 class ADXL362:
 
-    def __init__(self):
+    def __init__(self, device=0, ce_pin=0):
+        """
+        device: the SPI device (often 0)
+
+        ce_pin: pass 0 for CE0, 1 for CE1, etc.
+
+        device and ce_pin map to device file /dev/spidev{device}.{ce_pin}
+        """
 
         # init spi for communication
         self.spi = spidev.SpiDev()
-        self.spi.open(0,0)
+        self.spi.open(device, ce_pin) # (x,0) == CE0, (x,1) == CE1
 
         # Set clock phase and polarity to default
         self.spi.mode = 0b00 
@@ -52,6 +59,7 @@ class ADXL362:
     def begin_measure(self):
         ''' Turn on measurement mode, required after reset
         '''
+        self.spi.cshigh = False
         
         # Read in current value in power control register
         pc_reg = self.spi_read_reg(0x2D)
@@ -61,6 +69,8 @@ class ADXL362:
 
         # Write new power control buffer to register
         self.spi_write_reg(0x2D, pc_reg_new)
+
+        self.spi.cshigh = True
 
         time.sleep(.01)
 
@@ -102,12 +112,13 @@ class ADXL362:
             Returns:
                 - Tuple with x, y, z, and temperature data
         '''
-
+        self.spi.cshigh = False
         x = self.read_x()
         y = self.read_y()
         z = self.read_z()
         temp = self.read_temp()
-        
+
+        self.spi.cshigh = True
         return (x, y, z, temp)
         
     def spi_read_two(self, address):
